@@ -22,5 +22,9 @@ Na consola:
 
 Esta estrutura da linha de comando deve ser sempre validada pelo script, assim como a existência da diretoria de trabalho (src).
 
+NAO ACEITAR BKP NA PROPRIA SOURCE, ia começar a alterar a source enquanto se iterava com ela, provavelmente ia dar um loop qualquer
+
+[[ $f1 -nt $f2]] -> $f1 e $f2 são ficheiro, o -nt compara as datas (nt = newer than), isso faz com que o comando date -d "dat" +%s já não seja preciso
+
               src    bkp
 > atualizados/mantidos     ✔      ✔    (existem em ambos no entanto a versão na src é mais desatualizada do que no bkp) [causa provável: alguém mexeu diretamente no bkp]
