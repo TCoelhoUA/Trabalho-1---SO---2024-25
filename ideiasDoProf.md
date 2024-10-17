@@ -3,6 +3,9 @@ Situações a ter em conta:
 ✔ - Existe
 ✗ - Não existe
 
+Comando ÚTIL:
+date -d "Tue Oct 15 08:49:09" +%s (retorna um número que corresponde ao número de segundos passados desde um certo tempo que não sei bem qual é, mas basicamente todas as datas têm número diferentes, o que facilita na comparação, sendo que datas mais recentes têm número maiores)
+
 Situações habituais:
 
               src    bkp
