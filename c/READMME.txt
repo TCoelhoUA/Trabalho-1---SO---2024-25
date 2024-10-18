@@ -1,0 +1,15 @@
+Bibliografia:
+
+(Verificação se a diretoria existia ou não)
+
+https://stackoverflow.com/questions/59838/how-do-i-check-if-a-directory-exists-or-not-in-a-bash-shell-script
+
+-------------------------------------------------------------------------------------------------------------
+
+(Uso do comando cp)
+
+https://phoenixnap.com/kb/cp-command
+https://www.geeksforgeeks.org/cp-cosaiujdacskjoicdvunsjoacmmand-linux-examples/
+
+novalinahsindiandnas
+-------------------------------------------------------------------------------------------------------------
