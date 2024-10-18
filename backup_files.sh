@@ -13,7 +13,12 @@ case $# in
         ;;
     3)
         index=2
-        c_flag=1
+        if [[ "$1" == "-c" ]]; then
+            c_flag=1
+        else
+            echo "Parâmetro incorreto. Esperado: '-c'"
+            exit 1
+        fi
         ;;
     *)
         echo "Número de argumentos inválido!"
@@ -82,5 +87,6 @@ else
         fi
     done
 fi
+
 echo "OUTPUT_TESTE: isNew = $isNew (1 se o diretório de bkp é novo e 0 se já existia)"
 echo "Fim do programa."
