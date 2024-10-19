@@ -6,17 +6,18 @@ source ./functions/isNewer.sh
 # $1 - src (Pasta a copiar)
 # $2 - bkp (Pasta onde colar) [Criar Pasta caso não exista]
 
+c_flag=0
+
 case $# in
     2)
         index=1
-        c_flag=0
         ;;
     3)
         index=2
         if [[ "$1" == "-c" ]]; then
             c_flag=1
         else
-            echo "Parâmetro incorreto. Esperado: '-c'"
+            echo "Parâmetro incorreto. Esperado: '[-c]'"
             exit 1
         fi
         ;;
