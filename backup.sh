@@ -2,6 +2,7 @@
 
 source ./functions/checkPath.sh
 source ./functions/isNewer.sh
+source ./functions/checkFile.sh
 
 # $1 - src (Pasta a copiar)
 # $2 - bkp (Pasta onde colar) [Criar Pasta caso não exista]
@@ -37,7 +38,7 @@ case $# in
                 if [[ -f $2 ]]; then
                     b_flag=1
                     flags="-b $2"
-                    no_file=$2
+                    blockedFiles=$2
                 else
                     echo "Parâmetro incorreto. Esperado: '[-b tfile]'"
                     exit 1
@@ -69,7 +70,7 @@ case $# in
                 if [[ -f $3 ]]; then
                     b_flag=1
                     flags="-c -b $3"
-                    no_file=$3
+                    blockedFiles=$3
                 else
                     echo "Parâmetro incorreto. Esperado: '[-b tfile]'"
                     exit 1
@@ -93,7 +94,7 @@ case $# in
             b_flag=1
             r_flag=1
             flags="-b $2 -r $4"
-            no_file=$2
+            blockedFiles=$2
             regexpr=$4
         fi
         ;;
@@ -117,7 +118,7 @@ case $# in
 
         r_flag=1
         regexpr=$5
-        no_file=$3
+        blockedFiles=$3
         flags="-c -b $3 -r $5"
         ;;
 
@@ -154,8 +155,34 @@ if [ $? -ne 1 ]; then
     fi
 fi
 bkp=$new_path
+echo "TESTE: $bkp"
+echo "OUTPUT_TESTE (ls):" $(ls $bkp)
 
 main_call=1
+
+# Dentro de cada diretório fazemos esta verificação de possíveis ficheiro/diretórios apagados
+for path in $bkp*; do
+    name=$(basename $path)
+    echo "OUTPUT_TESTE (ls):" $(ls $bkp)
+    echo "NAME = $name"
+    echo "PATH = $path"
+    # Se já não existir na src, então apagamos do bkp
+    if [[ ! -f $src$name ]]; then
+        if [[ ! -d $src$name ]]; then
+            if [ $c_flag -eq 1 ]; then
+                echo "rm $bkp$name"
+            else
+                rm $bkp$name
+            fi
+        else
+            if [ $c_flag -eq 1 ]; then
+                echo "rm -r $bkp$name"
+            else
+                rm -r $bkp$name
+            fi
+        fi
+    fi
+done
 
 for file_path in $src*; do
     file_name=$(basename $file_path)    # Remove o prefixo do caminho e deixa apenas o nome do ficheiro/diretório
@@ -168,7 +195,7 @@ for file_path in $src*; do
             if [ $c_flag -eq 1 ]; then
                 echo "mkdir -p -v $bkp$file_name"
             else
-                mkdir -p -v $bkp$file_name
+                mkdir -p -v "$bkp$file_name"
             fi
         fi
 
@@ -178,26 +205,33 @@ for file_path in $src*; do
         if [ $c_flag -eq 1 ]; then
             echo "bash $0 $flags $file_path $bkp$file_name"
         fi
+        echo "O QUE FOI MANDADO FOI $0 $flags $file_path $bkp$file_name"
+        echo "O PATH É $file_path $bkp$file_name"
         bash $0 $flags $file_path $bkp$file_name
 
 
     else
-        # Se o item é um arquivo, verificar se precisa ser copiado
+
+
         isNewer $file_path $bkp$file_name
+        # Se ainda existir e for mais recente, então copiamos
         if [ $? -eq 1 ]; then
-            # Copia o arquivo
             if [ $c_flag -eq 1 ]; then
                 if [ $b_flag -eq 1 ]; then
                     if [ $r_flag -eq 1 ]; then
                         if [[ $file_name == *$regexpr* ]]; then
-                            if [[ $file_name == "$no_file" ]]; then
+                            # Mesmo que o ficheiro verifique a expressão regular, se estiver no ficheiro da flag -b, então é ignorado (Flags: -c -b -r)
+                            checkFile $blockedFiles $file_name
+                            if [[ $? -eq 1 ]]; then
                                 echo "Arquivo $file_name será ignorado (flag -b)."
                             else
                                 echo "cp -a -v $file_path $bkp"
                             fi
                         fi
                     else
-                        if [[ $file_name == "$no_file" ]]; then
+                        # Se o ficheiro estiver no ficheiro da flag -b, então é ignorado (Flags: -c -b)
+                        checkFile $blockedFiles $file_name
+                        if [[ $? -eq 1 ]]; then
                             echo "Arquivo $file_name será ignorado (flag -b)."
                         else
                             echo "cp -a -v $file_path $bkp"
@@ -205,11 +239,12 @@ for file_path in $src*; do
                     fi
                 else
                     if [ $r_flag -eq 1 ]; then
-                        # Se o nome do ficheiro verificar a expressão regular, então copiamos
+                        # Se o nome do ficheiro verificar a expressão regular, então copiamos (Flags: -c -r)
                         if [[ $file_name == *$regexpr* ]]; then
                             echo "cp -a -v $file_path $bkp"
                         fi
                     else
+                        # (Flags: -c)
                         echo "cp -a -v $file_path $bkp"
                     fi
                 fi
@@ -217,14 +252,18 @@ for file_path in $src*; do
                 if [ $b_flag -eq 1 ]; then
                     if [ $r_flag -eq 1 ]; then
                         if [[ $file_name == *$regexpr* ]]; then
-                            if [[ $file_name == "$no_file" ]]; then
+                            # Mesmo que o ficheiro verifique a expressão regular, se estiver no ficheiro da flag -b, então é ignorado (FLags: -b -r)
+                            checkFile $blockedFiles $file_name
+                            if [[ $? -eq 1 ]]; then
                                 echo "Arquivo $file_name será ignorado (flag -b)."
                             else
                                 cp -a -v $file_path $bkp
                             fi
                         fi
                     else
-                        if [[ $file_name == "$no_file" ]]; then
+                        # Se o ficheiro estiver no ficheiro da flag -b, então é ignorado (Flags: -b)
+                        checkFile $blockedFiles $file_name
+                        if [[ $? -eq 1 ]]; then
                             echo "Arquivo $file_name será ignorado (flag -b)."
                         else
                             cp -a -v $file_path $bkp
@@ -232,7 +271,7 @@ for file_path in $src*; do
                     fi
                 else
                     if [ $r_flag -eq 1 ]; then
-                        # Se o nome do ficheiro verificar a expressão regular, então copiamos
+                        # Se o nome do ficheiro verificar a expressão regular, então copiamos (Flags: -r)
                         if [[ $file_name == *$regexpr* ]]; then
                             cp -a -v $file_path $bkp
                         fi
