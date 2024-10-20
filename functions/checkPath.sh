@@ -9,10 +9,10 @@ function checkPath() {
     fi
 
     if [ -d "$new_path" ]; then
-        echo "OUTPUT_TESTE (checkPath()): O caminho $new_path existe."
+        #echo "OUTPUT_TESTE (checkPath()): O caminho $new_path existe."
         return 1
     else
-        echo "OUTPUT_TESTE (checkPath()): O caminho $new_path não existe."
+        #echo "OUTPUT_TESTE (checkPath()): O caminho $new_path não existe."
         return 0
     fi
 }
