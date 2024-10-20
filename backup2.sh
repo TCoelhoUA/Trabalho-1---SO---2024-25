@@ -48,6 +48,8 @@ elif [ $c_flag -eq 0 ] && [ $b_flag -eq 1 ] && [ $r_flag -eq 1 ]; then
     index=5
 elif [ $c_flag -eq 1 ] && [ $b_flag -eq 1 ] && [ $r_flag -eq 1 ]; then
     index=6
+elif [ $# -eq 2 ]; then
+    index=1
 else
     echo "Número de argumentos inválido!"
     exit 1
@@ -118,9 +120,19 @@ for file_path in $src*; do
             if [ $c_flag -eq 1 ]; then
                 if [ $b_flag -eq 1 ]; then
                     if [ $r_flag -eq 1 ]; then
-                        echo "Ainda por implementar as flags b+r (MODE C = TRUE)"
+                        if [[ $file_name == *$regexpr* ]]; then
+                            if [[ $file_name == "$no_file" ]]; then
+                                echo "Arquivo $file_name será ignorado (flag -b)."
+                            else
+                                echo "cp -a -v $file_path $bkp"
+                            fi
+                        fi
                     else
-                        echo "Ainda por implementar a flag b. (MODE C = TRUE)"
+                        if [[ $file_name == "$no_file" ]]; then
+                            echo "Arquivo $file_name será ignorado (flag -b)."
+                        else
+                            echo "cp -a -v $file_path $bkp"
+                        fi
                     fi
                 else
                     if [ $r_flag -eq 1 ]; then
@@ -128,14 +140,26 @@ for file_path in $src*; do
                         if [[ $file_name == *$regexpr* ]]; then
                             echo "cp -a -v $file_path $bkp"
                         fi
+                    else
+                        echo "cp -a -v $file_path $bkp"
                     fi
                 fi
             else
                 if [ $b_flag -eq 1 ]; then
                     if [ $r_flag -eq 1 ]; then
-                        echo "Ainda por implementar as flags b+r (MODE C = FALSE)"
+                        if [[ $file_name == *$regexpr* ]]; then
+                            if [[ $file_name == "$no_file" ]]; then
+                                echo "Arquivo $file_name será ignorado (flag -b)."
+                            else
+                                cp -a -v $file_path $bkp
+                            fi
+                        fi
                     else
-                        echo "Ainda por implementar a flag b. (MODE C = FALSE)"
+                        if [[ $file_name == "$no_file" ]]; then
+                            echo "Arquivo $file_name será ignorado (flag -b)."
+                        else
+                            cp -a -v $file_path $bkp
+                        fi
                     fi
                 else
                     if [ $r_flag -eq 1 ]; then
@@ -143,6 +167,8 @@ for file_path in $src*; do
                         if [[ $file_name == *$regexpr* ]]; then
                             cp -a -v $file_path $bkp
                         fi
+                    else
+                        cp -a -v $file_path $bkp
                     fi
                 fi
             fi
