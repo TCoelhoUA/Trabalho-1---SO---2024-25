@@ -128,6 +128,14 @@ case $# in
         ;;
 esac
 
+errors=0
+warnings=0
+updated=0
+copied=0
+copied_size=0
+deleted=0
+deleted_size=0
+
 echo "OUTPUT_TESTE (Flag c): "$c_flag
 echo "OUTPUT_TESTE (Flag b): "$b_flag
 echo "OUTPUT_TESTE (Flag r): "$r_flag
@@ -165,6 +173,7 @@ for path in "$bkp"/*; do
 
         # Se já não existir na src, então apagamos do bkp
         if [[ ! -f $src$name ]]; then
+            deleted_size=$(stat -c%s "$bkp$name")
             # Verificar se é ficheiro ou diretório
             if [[ -f $path ]]; then
                 if [ $c_flag -eq 1 ]; then
@@ -281,6 +290,7 @@ for file_path in $src*; do
     fi
 done
 
+echo "DELEDTED = $deleted_size (B)"
 # Exibir "Fim do programa" apenas na primeira execução (não recursiva)
 if [ $main_call -eq 1 ]; then
     echo "Fim do programa."
