@@ -222,8 +222,17 @@ for file_path in $src*; do
                             if [[ $? -eq 1 ]]; then
                                 echo "Arquivo $file_name será ignorado (flag -b)."
                             else
-                                echo "cp -a -v $file_path $bkp"
+                                # Define o caminho do diretório no backup para o arquivo atual
+                                echo "destination_dir="$bkp/$(dirname "$file_path" | sed "s|^$src||")""
+            
+                                # Cria o diretório de destino caso ainda não exista
+                                echo "mkdir -p "$destination_dir""
+            
+                                # Copia o arquivo para o diretório de destino
+                                echo "cp -a -v "$file_path" "$destination_dir""
                             fi
+                        else 
+
                         fi
                     else
                         # Se o ficheiro estiver no ficheiro da flag -b, então é ignorado (Flags: -c -b)
@@ -254,7 +263,14 @@ for file_path in $src*; do
                             if [[ $? -eq 1 ]]; then
                                 echo "Arquivo $file_name será ignorado (flag -b)."
                             else
-                                cp -a -v $file_path $bkp
+                                # Define o caminho do diretório no backup para o arquivo atual
+                                destination_dir="$bkp/$(dirname "$file_path" | sed "s|^$src||")"
+            
+                                # Cria o diretório de destino caso ainda não exista
+                                mkdir -p "$destination_dir"
+            
+                                # Copia o arquivo para o diretório de destino
+                                cp -a -v "$file_path" "$destination_dir"
                             fi
                         fi
                     else
