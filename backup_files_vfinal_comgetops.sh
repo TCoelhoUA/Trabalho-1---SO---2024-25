@@ -7,8 +7,8 @@ source ./functions/isNewer.sh
 # $2 - bkp (Pasta onde colar) [Criar Pasta caso não exista]
 
 c_flag=0
-index=1
-
+#index=1
+#
 # case $# in
 #     2)
 #         index=1
@@ -31,8 +31,7 @@ index=1
 while getopts ":c" flag; do
     case "$flag" in
         c) 
-            c_flag=1  # Set c_flag to 1 if -c is present
-            index=2
+            c_flag=1
             ;;
         \?) 
             echo -e "Parâmetros incorretos!\nEsperado: -c path/to/src /path/to/bkp"
@@ -46,7 +45,7 @@ shift $((OPTIND - 1))
 
 # Check if exactly 2 arguments remain after processing flags
 if [ $# -ne 2 ]; then
-    echo "Parâmetros incorretos!\nEsperado: -c path/to/src /path/to/bkp"
+    echo -e "Parâmetros incorretos!\nEsperado: -c path/to/src /path/to/bkp"
     exit 1
 fi
 
@@ -73,15 +72,15 @@ if [ $? -ne 1 ]; then
 fi
 bkp=$new_path
 
-for file_path in $src*; do
-    file_name=$(basename $file_path)    # remove o prefixo do path e deixa apenas o nomes do ficheiro
-    isNewer $src$file_name $bkp$file_name
+for file_path in "$src"{.,}*; do
+    file_name=$(basename "$file_path")    # remove o prefixo do path e deixa apenas o nomes do ficheiro
+    isNewer "$src$file_name" "$bkp$file_name"
     if [ $? -eq 1 ]; then
         # copia-se o ficheiro
         if [ $c_flag -eq 1 ]; then
-            echo "cp -a -v $file_path $bkp"
+            echo "cp -a -v \"$file_path\" $bkp"
         else
-            cp -a -v $file_path $bkp
+            cp -a -v "$file_path" $bkp
         fi
     fi
 done
