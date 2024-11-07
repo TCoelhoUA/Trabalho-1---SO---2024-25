@@ -7,26 +7,6 @@ source ./functions/isNewer.sh
 # $2 - bkp (Pasta onde colar) [Criar Pasta caso não exista]
 
 c_flag=0
-#index=1
-#
-# case $# in
-#     2)
-#         index=1
-#         ;;
-#     3)
-#         index=2
-#         if [[ "$1" == "-c" ]]; then
-#             c_flag=1
-#         else
-#             echo "Parâmetro incorreto. Esperado: '[-c]'"
-#             exit 1
-#         fi
-#         ;;
-#     *)
-#         echo "Número de argumentos inválido!"
-#         exit 1
-#         ;;
-# esac
 
 while getopts ":c" flag; do
     case "$flag" in
@@ -40,10 +20,10 @@ while getopts ":c" flag; do
     esac
 done
 
-# Shift the processed options out of the arguments
+# Dá shift das flags e "retira-as" dos argumentos
 shift $((OPTIND - 1))
 
-# Check if exactly 2 arguments remain after processing flags
+# Verifica que o programa tem exatamente 2 argumentos depois de processar as flags (path/to/src e path/to/bkp)
 if [ $# -ne 2 ]; then
     echo -e "Parâmetros incorretos!\nEsperado: -c path/to/src /path/to/bkp"
     exit 1
