@@ -14,7 +14,7 @@ while getopts ":c" flag; do
             c_flag=1
             ;;
         \?) 
-            echo -e "Parâmetros incorretos!\nEsperado: -c path/to/src /path/to/bkp"
+            echo -e "Parâmetros incorretos!\nEsperado: -c /path/to/src /path/to/bkp"
             exit 1
             ;;
     esac
@@ -25,11 +25,11 @@ shift $((OPTIND - 1))
 
 # Verifica que o programa tem exatamente 2 argumentos depois de processar as flags (path/to/src e path/to/bkp)
 if [ $# -ne 2 ]; then
-    echo -e "Parâmetros incorretos!\nEsperado: -c path/to/src /path/to/bkp"
+    echo -e "Parâmetros incorretos!\nEsperado: -c /path/to/src /path/to/bkp"
     exit 1
 fi
 
-# Assign remaining arguments to src and bkp
+# Atribuir os restantes argumentos a src e bkp
 src="$1"
 bkp="$2"
 
