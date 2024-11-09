@@ -41,7 +41,6 @@ fi
 
 shopt -s nullglob
 shopt -s dotglob
-
 for file_path in "$src"/*; do
     file_name=$(basename "$file_path")    # Remove o prefixo do caminho e deixa apenas o nome do ficheiro/diretório
 
