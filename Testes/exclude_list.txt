@@ -1,0 +1,11 @@
+some_random_file1.txt
+/home/tiago/Desktop/SOURCE/DirA/.hidden2
+some_random_file2.txt
+
+some_random_file3.txt
+just     another space.csv
+file7.md
+
+
+
+file9.pdf

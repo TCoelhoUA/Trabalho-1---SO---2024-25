@@ -41,6 +41,10 @@ while getopts "cb:r:" flag; do
         b)
             b_flag=1
             blockedFiles="$OPTARG"
+            if [[ ! -f "$blockedFiles" ]]; then
+                echo "[tfile] tem de ser um ficheiro válido!"
+                exit 1;
+            fi
             flags+=" -b $blockedFiles"
             ;;
         r)
@@ -68,24 +72,29 @@ fi
 src="$1"
 bkp="$2"
 
-# Verificar se $src existe
-checkPath $src
-if [ $? -ne 1 ]; then
+# Verifica se $src e $bkp são o mesmo diretório
+if [[ "$src" == "$bkp" ]]; then
+    echo "Os caminhos \"/path/to/src\" e \"/path/to/bkp\" não podem ser iguais!"
     exit 1;
 fi
-#src=$new_path
+
+# Verificar se $src existe
+checkPath "$src"
+if [ $? -ne 1 ]; then
+    echo "O caminho \"$src\" não existe!"
+    exit 1;
+fi
 
 # Verificar se $bkp existe
-checkPath $bkp
+checkPath "$bkp"
 if [ $? -ne 1 ]; then
     # criar a diretoria
     if [ $c_flag -eq 1 ]; then
-        echo "mkdir -p -v $bkp"
+        echo "mkdir -p -v \"$bkp\""
     else
-        mkdir -p -v $bkp
+        mkdir -p -v "$bkp"
     fi
 fi
-#bkp=$new_path
 
 shopt -s nullglob
 shopt -s dotglob
@@ -131,36 +140,38 @@ for file_path in "$src"/*; do
             echo "eval \"bash \"$0\" $flags \"$file_path\" \"$bkp/$file_name\"\""
         fi
         eval "bash \"$0\" $flags \"$file_path\" \"$bkp/$file_name\""
+
     else
         isNewer "$file_path" "$bkp/$file_name"
         # Se ainda existir e for mais recente, então copiamos
         if [ $? -eq 1 ]; then
-            checkExistance "$bkp/$file_name"
+            checkExistance "$bkp/$file_name"    # Utilizado para, no final, sabermos se o ficheiro foi copiado ou atualizado
             control=$?
+            var=0
 
-            echo "chegamos aqui?"
             if [ $c_flag -eq 1 ]; then
-                echo -e "\n\nentrou na c\n\n"
                 if [ $b_flag -eq 1 ]; then
                     if [ $r_flag -eq 1 ]; then
                         if [[ "$file_name" =~ $regexpr ]]; then
                             # Mesmo que o ficheiro verifique a expressão regular, se estiver no ficheiro da flag -b, então é ignorado (Flags: -c -b -r)
-                            checkFile "$blockedFiles" "$file_name"
+                            checkFile "$blockedFiles" "$file_path" "$file_name"
                             if [[ $? -eq 1 ]]; then
                                 echo "Arquivo \"$file_name\" será ignorado (flag -b)."
-                                break
                             else
                                 echo "cp -a -v \"$file_path $bkp\""
+                                var=1
                             fi
+                        else
+                            echo "Arquivo \"$file_name\" será ignorado (flag -r)."
                         fi
                     else
                         # Se o ficheiro estiver no ficheiro da flag -b, então é ignorado (Flags: -c -b)
-                        checkFile "$blockedFiles" "$file_name"
+                        checkFile "$blockedFiles" "$file_path" "$file_name"
                         if [[ $? -eq 1 ]]; then
                             echo "Arquivo \"$file_name\" será ignorado (flag -b)."
-                            break
                         else
                             echo "cp -a -v \"$file_path\" \"$bkp\""
+                            var=1
                         fi
                     fi
                 else
@@ -168,10 +179,14 @@ for file_path in "$src"/*; do
                         # Se o nome do ficheiro verificar a expressão regular, então copiamos (Flags: -c -r)
                         if [[ "$file_name" =~ $regexpr ]]; then
                             echo "cp -a -v \"$file_path\" \"$bkp\""
+                            var=1
+                        else
+                            echo "Arquivo \"$file_name\" será ignorado (flag -r)."
                         fi
                     else
                         # (Flags: -c)
                         echo "cp -a -v \"$file_path\" \"$bkp\""
+                        var=1
                     fi
                 fi
             else
@@ -179,22 +194,24 @@ for file_path in "$src"/*; do
                     if [ $r_flag -eq 1 ]; then
                         if [[ "$file_name" =~ $regexpr ]]; then
                             # Mesmo que o ficheiro verifique a expressão regular, se estiver no ficheiro da flag -b, então é ignorado (FLags: -b -r)
-                            checkFile "$blockedFiles" "$file_name"
+                            checkFile "$blockedFiles" "$file_path" "$file_name"
                             if [[ $? -eq 1 ]]; then
                                 echo "Arquivo \"$file_name\" será ignorado (flag -b)."
-                                break
                             else
                                 cp -a -v "$file_path" "$bkp"
+                                var=1
                             fi
+                        else
+                            echo "Arquivo \"$file_name\" será ignorado (flag -r)."
                         fi
                     else
                         # Se o ficheiro estiver no ficheiro da flag -b, então é ignorado (Flags: -b)
-                        checkFile "$blockedFiles" "$file_name"
+                        checkFile "$blockedFiles" "$file_path" "$file_name"
                         if [[ $? -eq 1 ]]; then
                             echo "Arquivo \"$file_name\" será ignorado (flag -b)."
-                            break
                         else
                             cp -a -v "$file_path" "$bkp"
+                            var=1
                         fi
                     fi
                 else
@@ -202,12 +219,18 @@ for file_path in "$src"/*; do
                         # Se o nome do ficheiro verificar a expressão regular, então copiamos (Flags: -r)
                         if [[ "$file_name" =~ $regexpr ]]; then
                             cp -a -v "$file_path" "$bkp"
+                            var=1
+                        else
+                            echo "Arquivo \"$file_name\" será ignorado (flag -r)."
                         fi
                     else
                         cp -a -v "$file_path" "$bkp"
+                        var=1
                     fi
                 fi
-
+            fi
+            # Verificação para ver se o ficheiro não foi ignorado
+            if [[ $var -eq 1 ]]; then
                 # Verificação final para atribuir os valores certos a Updated e Copied
                 if [[ $control -eq 1 ]]; then
                     ((updated+=1))
@@ -218,14 +241,15 @@ for file_path in "$src"/*; do
             fi
         # Verifica se o ficheiro em src é mais antigo do que em bkp
         elif [[ "$file_path" -ot "$bkp/$file_name" ]]; then
-            echo "WARNING: backup entry $file_path is newer than $bkp/$file_name; Should not happen"
+            echo "WARNING: backup entry $bkp/$file_name is newer than $file_path; Should not happen"
             ((warnings+=1))
         fi
     fi
 done
-echo "While backuping $bkp: $errors Errors; $warnings Warnings; $updated Updated; $copied Copied (${copied_size}B); $deleted Deleted (${deleted_size}B)"
 shopt -u dotglob
 shopt -u nullglob
+
+echo -e "While backuping $src: $errors Errors; $warnings Warnings; $updated Updated; $copied Copied (${copied_size}B); $deleted Deleted (${deleted_size}B)\n"
 
 # Exibir "Fim do programa" apenas na primeira execução (não recursiva)
 if [ $INITIAL_CALL -eq 1 ]; then

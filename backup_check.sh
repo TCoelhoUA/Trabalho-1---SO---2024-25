@@ -11,7 +11,6 @@ fi
 source ./functions/checkPath.sh
 source ./functions/isNewer.sh
 source ./functions/checkFile.sh
-source ./functions/checkExistance.sh
 
 # $1 - src (Pasta a copiar)
 # $2 - bkp (Pasta onde colar) [Criar Pasta caso não exista]
@@ -27,14 +26,16 @@ src="$1"
 bkp="$2"
 
 # Verificar se $src existe
-checkPath $src
+checkPath "$src"
 if [ $? -ne 1 ]; then
+    echo "O caminho \"$src\" não existe!"
     exit 1;
 fi
 
 # Verificar se $bkp existe
-checkPath $bkp
+checkPath "$bkp"
 if [ $? -ne 1 ]; then
+    echo "O caminho \"$bkp\" não existe!"
     exit 1;
 fi
 
@@ -53,10 +54,9 @@ for file_path in "$src"/*; do
         if [[ -e "$bkp/$file_name" ]]; then
             # A função md5sum devolve um hash associado e o nome do ficheiro(se os hashes forem iguais então os ficheiros também são)
             # awk '{print $1}' é usado para filtrar o nome do ficheiro e obter apenas o código hash
+
             hash_src=$(md5sum "$file_path" | awk '{print $1}')
             hash_bkp=$(md5sum "$bkp/$file_name" | awk '{print $1}')
-
-            echo -e "hash_src = $hash_src\nhash_bkp = $hash_bkp"
 
             if [ ! "$hash_src" == "$hash_bkp" ]; then
                 echo "$file_path $bkp/$file_name differ."
@@ -64,7 +64,6 @@ for file_path in "$src"/*; do
         fi
     fi
 done
-#echo "While backuping $bkp: $errors Errors; $warnings Warnings; $updated Updated; $copied Copied (${copied_size}B); $deleted Deleted (${deleted_size}B)"
 shopt -u dotglob
 shopt -u nullglob
 
