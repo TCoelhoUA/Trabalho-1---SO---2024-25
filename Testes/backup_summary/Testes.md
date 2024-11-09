@@ -32,3 +32,6 @@
 
 # Teste 11 # Com flag -b e "exclude_list.txt" inválido/não existente
 ./backup_summary.sh -b /home/tiago/Desktop/Testes/non_existent.txt /home/tiago/Desktop/SOURCE /home/tiago/Desktop/BACKUP
+
+# Teste 12 # Com flag -k e Path de Source Inexistente
+./backup_summary.sh -k /home/tiago/Desktop/NOTHING /home/tiago/Desktop/BACKUP
