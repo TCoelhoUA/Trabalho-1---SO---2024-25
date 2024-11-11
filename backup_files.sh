@@ -62,21 +62,12 @@ shopt -s dotglob
 for path in "$bkp"/*; do
     name=$(basename "$path")    # remove o prefixo do path e deixa apenas o nome do ficheiro
 
-    # Se o ficheiro/diretório já não existir em src, então apagamos de bkp
+    # Se o ficheiro já não existir em src, então apagamos de bkp
     if [ ! -e "$src/$name" ]; then
-        # Verificar se é ficheiro ou diretório
-        if [ -f "$path" ]; then
-            if [ $c_flag -eq 1 ]; then
-                echo "rm -v \"$path\""
-            else
-                rm -v "$path"
-            fi
+        if [ $c_flag -eq 1 ]; then
+            echo "rm -v \"$path\""
         else
-            if [ $c_flag -eq 1 ]; then
-                echo "rm -r -v \"$path\""
-            else
-                rm -r -v "$path"
-            fi
+            rm -v "$path"
         fi
     fi
 done
