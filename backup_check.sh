@@ -15,7 +15,6 @@ source ./functions/checkFile.sh
 # $1 - src (Pasta a copiar)
 # $2 - bkp (Pasta onde colar) [Criar Pasta caso não exista]
 
-# Verifica que o programa tem exatamente 2 argumentos depois de processar as flags (path/to/src e path/to/bkp)
 if [ $# -ne 2 ]; then
     echo -e "Parâmetros incorretos!\nEsperado: /path/to/src /path/to/bkp"
     exit 1
