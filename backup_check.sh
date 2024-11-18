@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# Verifica se $INITIAL_CALL não está definida
-# Ao usarmos export fazemos com que qualquer child process (chamada recursiva) consiga aceder ao valor definido na chamada inicial
-if [ -z "$INITIAL_CALL" ]; then
-    export INITIAL_CALL=1  # Estamos na chamada inicial
-else
-    export INITIAL_CALL=0  # Estamos na chamada recursiva
-fi
-
 source ./functions/checkPath.sh
 source ./functions/isNewer.sh
 source ./functions/checkFile.sh
@@ -64,8 +56,3 @@ for file_path in "$src"/*; do
 done
 shopt -u dotglob
 shopt -u nullglob
-
-# Exibir "Fim do programa" apenas na primeira execução (não recursiva)
-if [ $INITIAL_CALL -eq 1 ]; then
-    echo "Fim do programa."
-fi

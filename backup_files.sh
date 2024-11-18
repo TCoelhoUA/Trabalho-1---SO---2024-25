@@ -49,11 +49,10 @@ fi
 # Verificar se $bkp existe
 checkPath "$bkp"
 if [ $? -ne 1 ]; then
+    echo "mkdir -p \"$bkp\""
     # criar a diretoria
-    if [ $c_flag -eq 1 ]; then
-        echo "mkdir -p -v \"$bkp\""
-    else
-        mkdir -p -v "$bkp"
+    if [ $c_flag -eq 0 ]; then
+        mkdir -p "$bkp"
     fi
 fi
 
@@ -64,10 +63,8 @@ for path in "$bkp"/*; do
 
     # Se o ficheiro já não existir em src, então apagamos de bkp
     if [ ! -e "$src/$name" ]; then
-        if [ $c_flag -eq 1 ]; then
-            echo "rm -v \"$path\""
-        else
-            rm -v "$path"
+        if [ $c_flag -eq 0 ]; then
+            rm "$path"
         fi
     fi
 done
@@ -78,14 +75,11 @@ for file_path in "$src"/*; do
     # Verifica se o ficheiro é mais recente em src do que em bkp (copia se for mais recente ou se ainda não existir em bkp)
     isNewer "$src/$file_name" "$bkp/$file_name"
     if [ $? -eq 1 ]; then
-        if [ $c_flag -eq 1 ]; then
-            echo "cp -a -v \"$file_path\" \"$bkp\""
-        else
-            cp -a -v "$file_path" "$bkp"
+        echo "cp -a $file_path $bkp/$file_name"
+        if [ $c_flag -eq 0 ]; then
+            cp -a "$file_path" "$bkp"
         fi
     fi
 done
 shopt -u nullglob
 shopt -u dotglob
-
-echo "Fim do programa."
